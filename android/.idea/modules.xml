@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android.iml" filepath="$PROJECT_DIR$/.idea/modules/android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/android.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/android.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1393257056/android.firebase_auth.iml" filepath="$PROJECT_DIR$/.idea/modules/-1393257056/android.firebase_auth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-869477088/android.firebase_core.iml" filepath="$PROJECT_DIR$/.idea/modules/-869477088/android.firebase_core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1691125190/android.google_sign_in.iml" filepath="$PROJECT_DIR$/.idea/modules/-1691125190/android.google_sign_in.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/552664308/android.intent.iml" filepath="$PROJECT_DIR$/.idea/modules/552664308/android.intent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-301415476/android.qr_code_scanner.iml" filepath="$PROJECT_DIR$/.idea/modules/-301415476/android.qr_code_scanner.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-484609745/android.sms_autofill.iml" filepath="$PROJECT_DIR$/.idea/modules/-484609745/android.sms_autofill.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-375374683/android.upi_india.iml" filepath="$PROJECT_DIR$/.idea/modules/-375374683/android.upi_india.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1471860632/android.vibration.iml" filepath="$PROJECT_DIR$/.idea/modules/1471860632/android.vibration.iml" />
+    </modules>
+  </component>
+</project>
