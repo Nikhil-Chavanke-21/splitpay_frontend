@@ -1,0 +1,139 @@
+build.gradle-38-minSdkVersion 20
+build.gradle-2-ext.kotlin_version = '1.5.10'
+build.gradle-9-classpath 'com.android.tools.build:gradle:4.2.0'
+gradle-wrapper.properties-6-distributionUrl=https\://services.gradle.org/distributions/gradle-6.9-all.zip
+camera permissions
+vibrate permissions
+
+
+
+
+To Do:
+replace special characters from utf encode : https://www.w3schools.com/tags/ref_urlencode.asp
+add vibration
+
+
+
+
+
+2 types of blockchain
+native clockchain currency-ethereum
+token on top of a blockchain
+
+database-in terms of bytecodes(not humanreadable)
+etherchain can parse that data
+
+gas fee-goes to miners, hence every function call/deployment requires a price
+
+
+near smart contract in typescript
+
+blockchain developer
+smart contract developers
+token economics eng.
+
+moralis?
+
+
+web2-google pays-150,000-starting salary-web3
+150,000$ = 11250000₹
+
+
+get active on social media-twitter
+try to post as many things as can
+post
+brag
+tag people whom you got to learn from
+resume not required
+
+
+build projects-showcase projects
+get a job channel on questbook
+
+projects in web3-
+uniswap
+company code 180 lines
+
+notification service wasn't available
+
+
+space is moving at a very high space
+
+market cap
+uniswap-$12.131 Billion
+twitter-$37.63 Billion
+
+tag questbook app
+
+
+doge
+
+dao
+voting
+
+discord
+twitter
+
+token
+
+company-ipo
+
+
+fwb-friends with benefits
+
+4 yr
+
+
+upi://pay?
+pa=paytmqr2810050501011ooqggb29a01@paytm&
+pn=Paytm%20Merchant&
+mc=5499&
+mode=02&
+orgid=000000&
+paytmqr=2810050501011OOQGGB29A01&
+am=2&
+sign=MEYCIQDq96qhUnqvyLsdgxtfdZ11SQP//6F7f7VGJ0qr//lF/gIhAPgTMsopbn4Y9DiE7AwkQEPPnb2Obx5Fcr0HJghd4gzo
+
+
+upi://pay?
+pa=9422252553@okbizaxis&
+pn=R.%20S.%20Enterprises&
+mc=5732&
+mode=04&
+orgid=000000&
+aid=uGICAgIDzuuDabA&
+tr=BCR2DN6TZOIMF5CX&
+am=1
+
+upi://pay?
+pa=9422252553@postbank&
+pn=RANGNATH%20SANTU%20CHAVANKE&
+cu=INR&
+mode=02&
+orgId=159768&
+sign=MEYCIQCG5OvaPjgIjSq7R1sLwVegnA9STIrtNCxFQZgMVpFzegIhAONzPBFLAOG2G7wh/fEuw9Tx+tWEnH+0nuEIeYdqNDK7&
+am=1
+
+
+try mode as 04
+
+
+
+
+Date
+Amount
+Merchant
+Note
+Category
+
+/**
+ *Submitted for verification at Etherscan.io on 2021-03-18
+*/
+
+20
+20
+10
+50
+
+
+f

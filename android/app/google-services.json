@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "154081103400",
+    "project_id": "splitpay-c2560",
+    "storage_bucket": "splitpay-c2560.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:154081103400:android:adae93ac110da1cf61ef1d",
+        "android_client_info": {
+          "package_name": "com.example.splitpay"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "154081103400-ep9engjqakdke692aqj56t5bt7ftedsi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.splitpay",
+            "certificate_hash": "6cf5ca4340db4313fafa2443697a03dde1691fb9"
+          }
+        },
+        {
+          "client_id": "154081103400-a3974ff19mbgjhbbljr7u2kvd0393tqi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDv9QYyATUFj8kQc6ZA3HtVBaU73-Ao1Z4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "154081103400-a3974ff19mbgjhbbljr7u2kvd0393tqi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
