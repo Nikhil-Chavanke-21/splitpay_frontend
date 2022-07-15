@@ -1,5 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:splitpay/views/checkout.dart';
+import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:select_form_field/select_form_field.dart';
+import 'package:splitpay/config.dart';
+import 'package:splitpay/models/user.dart';
+import 'package:splitpay/views/flow/checkout.dart';
 import 'package:upi_india/upi_india.dart';
 import 'package:intent/intent.dart' as android_intent;
 import 'package:intent/action.dart' as android_action;
@@ -15,6 +23,11 @@ class Detail extends StatefulWidget {
 class _DetailState extends State<Detail> {
   Map fields={};
   TextEditingController _amountController=TextEditingController();
+  TextEditingController _description = TextEditingController();
+  String _category = 'others';
+
+  bool loading = false;
+  final _formKey = GlobalKey<FormState>();
 
   Future<UpiResponse>? _transaction;
   UpiIndia _upiIndia = UpiIndia();
@@ -29,6 +42,27 @@ class _DetailState extends State<Detail> {
     fontWeight: FontWeight.w400,
     fontSize: 14,
   );
+
+  addTransaction(payeeName, payeeUpi, payer, upiApp, amount, description, category) async {
+    var url = Uri.http(backend_url, '/v1/transaction/');
+    var headers = {"content-type": "application/json"};
+    var payload = {
+        "amount": amount,
+        "payeeUpi": payeeUpi,
+        "payeeName": payeeName,
+        "payer": payer,
+        "upiApp": upiApp,
+        "description": description,
+        "category": category,
+    };
+    String body = jsonEncode(payload);
+    Response response = await http.post(
+      url,
+      headers: headers,
+      body: body,
+    );
+    return response.body;
+  }
 
   @override
   void initState() {
@@ -68,20 +102,10 @@ class _DetailState extends State<Detail> {
     });
  }
 
-  // Future<UpiResponse> initiateTransaction(UpiApp app) async {
-  //   return _upiIndia.startTransaction(
-  //     app: app,
-  //     receiverUpiId: fields['pa'],
-  //     receiverName: fields['pn'],
-  //     transactionRefId: fields['tr']!=null? fields['tr']:'',
-  //     // transactionNote: '',
-  //     merchantSign: fields['sign'],
-  //     amount: double.parse(_amountController.text),
-  //   );
-  // }
+  Widget displayUpiApps(BuildContext context) {
+    final user = Provider.of<UserId>(context);
 
-  Widget displayUpiApps() {
-    if (apps == null)
+    if (apps == null || loading)
       return Center(child: CircularProgressIndicator());
     else if (apps!.length == 0)
       return Center(
@@ -100,32 +124,41 @@ class _DetailState extends State<Detail> {
             child: Wrap(
               children: apps!.map<Widget>((UpiApp app) {
                 return GestureDetector(
-                  onTap: () {
-                    if(_amountController.text.length==0 || double.parse(_amountController.text)==0){
-                      print('Please enter a amount');
+                  onTap: () async {
+                    if (_formKey.currentState!.validate()) {
+                      double amount = double.parse(_amountController.text);
+                      android_intent.Intent()
+                      ..setPackage(app.packageName)
+                      ..setAction(android_action.Action.ACTION_VIEW)
+                      ..setData(Uri.parse(widget.url.code+'&mode=02&cu=INR&am=${amount}'))
+                      ..startActivity().catchError((e) => print(e));
+
+                      setState(() {
+                        loading = true;
+                      });
+                      String tid = await addTransaction(
+                          fields['pn'],
+                          fields['pa'],
+                          user.uid,
+                          app.packageName,
+                          amount,
+                          _description.text,
+                          _category,
+                      );
+                      setState(() {
+                        loading = false;
+                      });
+                      Navigator.pushReplacement(
+                        context,
+                        new MaterialPageRoute(
+                          builder: (context) => new CheckOut(
+                            tid: tid,
+                            amount: amount,
+                            uid: user.uid,
+                          ),
+                        ),
+                      );
                     }
-                    // android_intent.Intent()
-                    // ..setPackage(app.packageName)
-                    // ..setAction(android_action.Action.ACTION_VIEW)
-                    // ..setData(Uri.parse(widget.url.code+'&mode=02&cu=INR&am='+double.parse(_amountController.text).toString()))
-                    // ..startActivity().catchError((e) => print(e));
-                    // 9422252553@postbank
-                    // RANGNATH SANTU CHAVANKE
-                    // null
-                    // 1.0
-                    // 2021-11-18 06:08:50.796959
-                    // com.google.android.apps.nbu.paisa.user
-                    Navigator.pushReplacement(context, new MaterialPageRoute(
-                      settings: const RouteSettings(name: '/form'),
-                      builder: (context) => new CheckOut(
-                        upi: fields['pa'],
-                        merchant: fields['pn'],
-                        mc: fields['mc'],
-                        am: double.parse(_amountController.text),
-                        date: DateTime.now(),
-                        app: app.packageName,
-                      ),
-                    ));
                   },
                   child: Container(
                     height: 80,
@@ -211,18 +244,87 @@ class _DetailState extends State<Detail> {
           Text(fields['pn'], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
           Text(fields['pa'], style: TextStyle(fontSize: 20),),
           SizedBox(height: 10.0,),
-          Text('Amount', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 110.0),
-            child: TextFormField(
-              controller:_amountController,
-              keyboardType: TextInputType.number,
-              keyboardAppearance: Brightness.dark,
-              style: TextStyle(
-                fontSize: 28,
+            padding: const EdgeInsets.all(4.0),
+            child: Container(
+              width: 320,
+              child: Form(
+                key: _formKey,
+                child: TextFormField(
+                  controller: _amountController,
+                  keyboardType: TextInputType.number,
+                  validator: (val) {
+                    return val!.isEmpty
+                        ? "Please enter upi id"
+                        : double.parse(val.toString()) == 0
+                            ? "Amount can't be 0"
+                            : null;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Amount',
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
               ),
-              decoration: InputDecoration(
-                hintText: '₹',
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Container(
+              width: 320,
+              child: TextFormField(
+                controller: _description,
+                keyboardType: TextInputType.text,
+                validator: (val) {
+                  return val!.isEmpty ? "Please enter description" : null;
+                },
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Container(
+              width: 320,
+              child: SelectFormField(
+                type: SelectFormFieldType.dropdown,
+                initialValue: _category,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(
+                    categoryIcon[_category],
+                    color: categoryColor[_category],
+                  ),
+                  suffixIcon: Icon(
+                    Icons.arrow_drop_down,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+                  labelText: 'Category',
+                  border: OutlineInputBorder(),
+                ),
+                items: categories
+                    .map((cat) => {
+                          'value': cat,
+                          'label': cat,
+                          'icon': Icon(
+                            categoryIcon[cat],
+                            color: categoryColor[cat],
+                          ),
+                        })
+                    .toList(),
+                onChanged: (val) {
+                  setState(() {
+                    _category = val;
+                  });
+                },
               ),
             ),
           ),
@@ -235,7 +337,7 @@ class _DetailState extends State<Detail> {
             ),
           ),
           Expanded(
-            child: displayUpiApps(),
+            child: displayUpiApps(context),
           ),
           Expanded(
             child: FutureBuilder(

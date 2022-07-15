@@ -5,13 +5,28 @@ gradle-wrapper.properties-6-distributionUrl=https\://services.gradle.org/distrib
 camera permissions
 vibrate permissions
 
+flutter build apk --build-name=1.0.0 --build-number=1 --no-sound-null-safety
 
+validate payment successful
+
+features:
+split in various sections
+can split with group+indivisuals
 
 
 To Do:
+send notifications
+optimize fields to fetch
+final navigations
+skipped add members for now
+
+arrange files in structure
+added animation after done
+replace color hardcoding
+addExpense in checkout
+
 replace special characters from utf encode : https://www.w3schools.com/tags/ref_urlencode.asp
 add vibration
-
 
 
 
@@ -114,6 +129,7 @@ orgId=159768&
 sign=MEYCIQCG5OvaPjgIjSq7R1sLwVegnA9STIrtNCxFQZgMVpFzegIhAONzPBFLAOG2G7wh/fEuw9Tx+tWEnH+0nuEIeYdqNDK7&
 am=1
 
+upi://pay?pa=9422252553@paytm&pn=RANGNATH%20SANTU%20CHAVANKE&mc=0000&mode=02&purpose=00&orgid=159761
 
 try mode as 04
 

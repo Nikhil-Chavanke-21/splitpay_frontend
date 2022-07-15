@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
-import 'package:splitpay/views/details.dart';
+import 'package:splitpay/views/flow/details.dart';
 import 'package:vibration/vibration.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter/material.dart';
@@ -42,11 +42,6 @@ class _QRViewExampleState extends State<QRViewExample> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  if (result != null)
-                    Text(
-                        'Barcode Type: ${describeEnum(result!.format)}   Data: ${result!.code}')
-                  else
-                    const Text('Scan a code'),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -58,10 +53,25 @@ class _QRViewExampleState extends State<QRViewExample> {
                               await controller?.toggleFlash();
                               setState(() {});
                             },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Theme.of(context).cardColor),
+                            ),
                             child: FutureBuilder(
                               future: controller?.getFlashStatus(),
                               builder: (context, snapshot) {
-                                return Text('Flash: ${snapshot.data}');
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        Icons.flash_on,
+                                        size: 20,
+                                      ),
+                                      Text('Flash'),
+                                    ],
+                                  ),
+                                );
                               },
                             )),
                       ),
@@ -72,12 +82,26 @@ class _QRViewExampleState extends State<QRViewExample> {
                               await controller?.flipCamera();
                               setState(() {});
                             },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Theme.of(context).cardColor),
+                            ),
                             child: FutureBuilder(
                               future: controller?.getCameraInfo(),
                               builder: (context, snapshot) {
                                 if (snapshot.data != null) {
-                                  return Text(
-                                      'Camera facing ${describeEnum(snapshot.data!)}');
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.loop,
+                                          size: 20,
+                                        ),
+                                        Text('Switch Camera'),
+                                      ],
+                                    ),
+                                  );
                                 } else {
                                   return const Text('loading');
                                 }
@@ -86,32 +110,32 @@ class _QRViewExampleState extends State<QRViewExample> {
                       )
                     ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        margin: const EdgeInsets.all(8),
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            await controller?.pauseCamera();
-                          },
-                          child: const Text('pause',
-                              style: TextStyle(fontSize: 20)),
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.all(8),
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            await controller?.resumeCamera();
-                          },
-                          child: const Text('resume',
-                              style: TextStyle(fontSize: 20)),
-                        ),
-                      )
-                    ],
-                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   crossAxisAlignment: CrossAxisAlignment.center,
+                  //   children: <Widget>[
+                  //     Container(
+                  //       margin: const EdgeInsets.all(8),
+                  //       child: ElevatedButton(
+                  //         onPressed: () async {
+                  //           await controller?.pauseCamera();
+                  //         },
+                  //         child: const Text('pause',
+                  //             style: TextStyle(fontSize: 20)),
+                  //       ),
+                  //     ),
+                  //     Container(
+                  //       margin: const EdgeInsets.all(8),
+                  //       child: ElevatedButton(
+                  //         onPressed: () async {
+                  //           await controller?.resumeCamera();
+                  //         },
+                  //         child: const Text('resume',
+                  //             style: TextStyle(fontSize: 20)),
+                  //       ),
+                  //     )
+                  //   ],
+                  // ),
                 ],
               ),
             ),
@@ -133,7 +157,7 @@ class _QRViewExampleState extends State<QRViewExample> {
       key: qrKey,
       onQRViewCreated: _onQRViewCreated,
       overlay: QrScannerOverlayShape(
-          borderColor: Colors.red,
+          borderColor: Theme.of(context).primaryColor,
           borderRadius: 10,
           borderLength: 30,
           borderWidth: 10,
@@ -151,10 +175,7 @@ class _QRViewExampleState extends State<QRViewExample> {
         result = scanData;
       });
       Vibration.vibrate(duration: 50, intensities: [30]);
-      Navigator.pushReplacement(context, new MaterialPageRoute(
-              settings: const RouteSettings(name: '/form'),
-              builder: (context) => new Detail(url: scanData),
-            ));
+      Navigator.pushReplacement(context, new MaterialPageRoute(builder: (context) => new Detail(url: scanData)));
     });
   }
 

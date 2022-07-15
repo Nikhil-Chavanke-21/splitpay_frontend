@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:splitpay/views/qr_code.dart';
+import 'package:splitpay/views/home/add_manually.dart';
+import 'package:splitpay/views/home/pay_upi.dart';
+import 'package:splitpay/views/home/qr_code.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
@@ -8,45 +10,99 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: IconButton(
-          icon: Icon(Icons.qr_code_2),
-          iconSize: 40.0,
-          onPressed: (){
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => const QRViewExample(),
-            ));
-          },
-        ),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).backgroundColor,
+        title: Text('Home'),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          SizedBox(height: 50),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              InkWell(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>QRViewExample()));
+                },
+                child: Card(
+                  child: Container(
+                    height: 100,
+                    width: 90,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Icon(
+                            Icons.qr_code_2,
+                            size: 40.0,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Scan QR'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => PayUPI()));
+                },
+                child: Card(
+                  child: Container(
+                    height: 100,
+                    width: 90,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Icon(
+                            Icons.alternate_email,
+                            size: 40.0,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Pay UPI'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddManually()));
+                },
+                child: Card(
+                  child: Container(
+                    height: 100,
+                    width: 90,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Icon(
+                            Icons.add_box_outlined,
+                            size: 40.0,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Add Man.'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
-
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/material.dart';
-
-// class Home extends StatefulWidget {
-//   const Home({ Key? key }) : super(key: key);
-
-//   @override
-//   _HomeState createState() => _HomeState();
-// }
-
-// class _HomeState extends State<Home> {
-//   final _auth=FirebaseAuth.instance;
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Center(child: Text('Home Screen')),
-//       floatingActionButton: FloatingActionButton(
-//         onPressed: () async {
-//           String token=await _auth.currentUser!.getIdToken();
-//           // await _auth.signOut();
-//           // Navigator.pop(context);
-//         },
-//         child: Icon(Icons.logout),
-//       ),
-//     );
-//   }
-// }
