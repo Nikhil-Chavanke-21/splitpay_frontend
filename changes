@@ -5,7 +5,9 @@ gradle-wrapper.properties-6-distributionUrl=https\://services.gradle.org/distrib
 camera permissions
 vibrate permissions
 
+
 flutter build apk --build-name=1.0.0 --build-number=1 --no-sound-null-safety
+flutter build ios --debug --no-codesign
 
 validate payment successful
 

@@ -25,30 +25,8 @@ class _AddManuallyState extends State<AddManually> {
 
   bool loading = false;
 
-  addTransaction(payeeName, payeeUpi, payer, upiApp, amount, description, category) async {
-    var url = Uri.http(backend_url, '/v1/transaction/');
-    var headers = {"content-type": "application/json"};
-    var payload = {
-      "amount": amount,
-      "payeeUpi": payeeUpi,
-      "payeeName": payeeName,
-      "payer": payer,
-      "upiApp": upiApp,
-      "description": description,
-      "category": category,
-    };
-    String body = jsonEncode(payload);
-    Response response = await http.post(
-      url,
-      headers: headers,
-      body: body,
-    );
-    return response.body;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<UserId>(context);
     
     return Scaffold(
       body: loading?
@@ -58,40 +36,70 @@ class _AddManuallyState extends State<AddManually> {
           SizedBox(
             height: 100.0,
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SelectFormField(
-              type: SelectFormFieldType.dropdown,
-              initialValue: _category,
-              decoration: InputDecoration(
-                prefixIcon: Icon(
-                  categoryIcon[_category],
-                  color: categoryColor[_category],
-                ),
-                suffixIcon: Icon(
-                  Icons.arrow_drop_down,
-                  color: Colors.deepPurpleAccent,
-                ),
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                labelText: 'Category',
-                border: OutlineInputBorder(),
-              ),
-              items: categories
-                  .map((cat) => {
-                        'value': cat,
-                        'label': cat,
-                        'icon': Icon(
-                          categoryIcon[cat],
-                          color: categoryColor[cat],
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 15.0),
+            height: 40,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: List<Widget>.from(categories.map((entry) {
+                return _category == entry
+                    ? Padding(
+                        padding: EdgeInsets.all(5.0),
+                        child: Container(
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(
+                              color: Colors.deepPurpleAccent,
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 15,
+                                backgroundColor:
+                                    Theme.of(context).cardColor,
+                                child: Icon(
+                                  categoryIcon[entry],
+                                  size: 15,
+                                  color: categoryColor[entry],
+                                ),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                                child: Text(
+                                  entry,
+                                  style: TextStyle(
+                                      color: Colors.deepPurpleAccent),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      })
-                  .toList(),
-              onChanged: (val) {
-                setState(() {
-                  _category = val;
-                });
-              },
+                      )
+                    : InkWell(
+                        onTap: () {
+                          setState(() {
+                            _category = entry;
+                          });
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.all(5.0),
+                          child: CircleAvatar(
+                            backgroundColor: Theme.of(context).cardColor,
+                            radius: 15,
+                            child: Icon(
+                              categoryIcon[entry],
+                              size: 15,
+                              color: categoryColor[entry],
+                            ),
+                          ),
+                        ),
+                      );
+              })),
             ),
           ),
           Form(
@@ -161,28 +169,16 @@ class _AddManuallyState extends State<AddManually> {
                       onPressed: () async {
                         if(_formKey.currentState!.validate()){
                           double amount = double.parse(_amountController.text);
-                          setState(() {
-                            loading = true;
-                          });
-                          String tid = await addTransaction(
-                            '',
-                            '',
-                            user.uid,
-                            '',
-                            amount,
-                            _description.text,
-                            _category,
-                          );
-                          setState(() {
-                            loading = false;
-                          });
                           Navigator.pushReplacement(
                             context,
                             new MaterialPageRoute(
                               builder: (context) => new CheckOut(
-                                tid: tid,
                                 amount: amount,
-                                uid: user.uid,
+                                description: _description.text,
+                                category: _category,
+                                upiApp: '',
+                                payeeName: '',
+                                payeeUpi: '',
                               ),
                             ),
                           );

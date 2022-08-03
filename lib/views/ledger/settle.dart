@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
@@ -11,7 +12,7 @@ import 'package:splitpay/models/user.dart';
 import 'package:upi_india/upi_india.dart';
 
 class Settle extends StatefulWidget {
-  const Settle({ Key? key, this.amount, this.id, this.upi, this.name, this.setDue, this.uid }) : super(key: key);
+  const Settle({ Key? key, this.amount, this.id, this.upi, this.name, this.setDue, this.uid , this.group, this.photoURL }) : super(key: key);
 
   final amount;
   final upi;
@@ -19,6 +20,8 @@ class Settle extends StatefulWidget {
   final id;
   final setDue;
   final uid;
+  final group;
+  final photoURL;
 
   @override
   _SettleState createState() => _SettleState();
@@ -54,7 +57,7 @@ class _SettleState extends State<Settle> {
     super.initState();
   }
 
-  settleFriend(from, to, upiApp, amount) async {
+  settleFriend(from, to, upiApp, amount, group) async {
     var url = Uri.http(backend_url, '/v1/transaction/settle/');
     var headers = {"content-type": "application/json"};
     var payload = {
@@ -62,6 +65,7 @@ class _SettleState extends State<Settle> {
         "from": from,
         "to": to,
         "upiApp": upiApp,
+        "group": group,
     };
     String body = jsonEncode(payload);
     await http.post(
@@ -108,26 +112,117 @@ class _SettleState extends State<Settle> {
               children: apps!.map<Widget>((UpiApp app) {
                 return GestureDetector(
                   onTap: () async {
+                    android_intent.Intent()
+                      ..setPackage(app.packageName)
+                      ..setAction(android_action.Action.ACTION_VIEW)
+                      ..setData(Uri.parse(
+                          'upi://pay?pa=${widget.upi}&pn=${widget.name.replaceAll(' ', '%20')}&cu=INR&mode=02&am=${widget.amount}'))
+                      ..startActivity();
                     setState(() {
-                      loading=true;
+                      loading = false;
                     });
-                    try {
-                      android_intent.Intent()
-                        ..setPackage(app.packageName)
-                        ..setAction(android_action.Action.ACTION_VIEW)
-                        ..setData(Uri.parse(
-                            'upi://pay?pa=${widget.upi}&pn=${widget.name.replaceAll(' ', '%20')}&cu=INR&mode=02&am=${widget.amount}'))
-                        ..startActivity();
 
-                      await settleFriend(widget.uid, widget.id, app.packageName, widget.amount);
-                      widget.setDue();
-                    } catch (e) {
-                      print(e);
-                    }
-                    Navigator.pop(context);
-                    setState(() {
-                      loading=false;
-                    });
+                    showModalBottomSheet(
+                        context: context,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20.0),
+                                topRight: Radius.circular(20.0))),
+                        builder: (context) {
+                          return Container(
+                            height: 300,
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(15.0),
+                                  child: Text(
+                                    'Was the transacction successful?',
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ElevatedButton(
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Colors.deepPurpleAccent),
+                                    ),
+                                    child: Container(
+                                      width: double.infinity,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "Yes :)",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      setState(() {
+                                        loading =true;
+                                      });
+                                      await settleFriend(widget.uid, widget.id, app.packageName, widget.amount, widget.group);
+                                      widget.setDue(widget.id);
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ElevatedButton(
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Colors.deepPurpleAccent),
+                                    ),
+                                    child: Container(
+                                      width: double.infinity,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "No, Try Again :/",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ElevatedButton(
+                                    style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Colors.deepPurpleAccent),
+                                    ),
+                                    child: Container(
+                                      width: double.infinity,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "No, Take me back :(",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        });
                   },
                   child: Container(
                     height: 80,
@@ -211,6 +306,19 @@ class _SettleState extends State<Settle> {
           Text('Paying', style: TextStyle(fontSize: 20.0)),
           Text(widget.amount.toString()+ ' ₹', style: TextStyle(fontSize: 40.0)),
           Text('to', style: TextStyle(fontSize: 20.0)),
+          Container(
+            width: 80,
+            height: 80,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(40.0),
+              child: CachedNetworkImage(
+                imageUrl: widget.photoURL,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => new CircularProgressIndicator(),
+                errorWidget: (context, url, error) => new Icon(Icons.error),
+              ),
+            ),
+          ),
           Text(widget.name, style: TextStyle(fontSize: 30.0)),
           Text(widget.upi, style: TextStyle(fontSize: 25.0)),
           SizedBox(height: 10.0,),

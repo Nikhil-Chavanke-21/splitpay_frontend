@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).backgroundColor,
+      color: NeumorphicTheme.baseColor(context),
       child: Center(
         child: SpinKitRing(
           color: Theme.of(context).primaryColor,

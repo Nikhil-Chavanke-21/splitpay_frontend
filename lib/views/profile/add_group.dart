@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
@@ -126,9 +127,10 @@ class _AddGroupState extends State<AddGroup> {
               ),
             ],
           ),
-          Container(
-            height: 70,
-            child: Expanded(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+            child: Container(
+              height: 40,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: List<Widget>.from(selected.keys.map((entry) {
@@ -140,12 +142,22 @@ class _AddGroupState extends State<AddGroup> {
                           selected.remove(entry);
                         });
                       },
-                      child: CircleAvatar(
-                        backgroundImage: NetworkImage(selected[entry]),
+                      child: Container(
+                        width: 40,
+                        height: 40,
                         child: Stack(
                           children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20.0),
+                              child: CachedNetworkImage(
+                                imageUrl: selected[entry],
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => new CircularProgressIndicator(),
+                                errorWidget: (context, url, error) => new Icon(Icons.error),
+                              ),
+                            ),
                             Align(
-                              alignment: Alignment(0.8, 0.6),
+                              alignment: Alignment(1, 1),
                               child: CircleAvatar(
                                 radius: 8,
                                 backgroundColor: Colors.grey,
@@ -155,7 +167,7 @@ class _AddGroupState extends State<AddGroup> {
                                   color: Colors.black,
                                 ),
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ),
@@ -178,8 +190,18 @@ class _AddGroupState extends State<AddGroup> {
                     });
                   },
                   child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(friends![index]['photoURL']),
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20.0),
+                        child: CachedNetworkImage(
+                          imageUrl: friends![index]['photoURL'],
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => new CircularProgressIndicator(),
+                          errorWidget: (context, url, error) => new Icon(Icons.error),
+                        ),
+                      ),
                     ),
                     title: Text(friends![index]['name']),
                   ),

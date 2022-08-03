@@ -44,27 +44,6 @@ class _PayUPIState extends State<PayUPI> {
     fontSize: 14,
   );
 
-  addTransaction(payeeName, payeeUpi, payer, upiApp, amount, description, category) async {
-    var url = Uri.http(backend_url, '/v1/transaction/');
-    var headers = {"content-type": "application/json"};
-    var payload = {
-        "amount": amount,
-        "payeeUpi": payeeUpi,
-        "payeeName": payeeName,
-        "payer": payer,
-        "upiApp": upiApp,
-        "description": description,
-        "category": category,
-    };
-    String body = jsonEncode(payload);
-    Response response = await http.post(
-      url,
-      headers: headers,
-      body: body,
-    );
-    return response.body;
-  }
-
   @override
   void initState() {
     _upiIndia.getAllUpiApps(mandatoryTransactionId: false).then((value) {
@@ -79,7 +58,6 @@ class _PayUPIState extends State<PayUPI> {
   }
 
   Widget displayUpiApps(BuildContext context) {
-    final user = Provider.of<UserId>(context);
 
     if (apps == null || loading)
       return Center(child: CircularProgressIndicator());
@@ -111,28 +89,16 @@ class _PayUPIState extends State<PayUPI> {
                         ..setData(Uri.parse('upi://pay?pa=${upi}&pn=Unknown&cu=INR&mode=02&am=${amount}'))
                         ..startActivity().catchError((e) => print(e));
 
-                      setState(() {
-                        loading=true;
-                      });
-                      String tid = await addTransaction(
-                        '',
-                        upi,
-                        user.uid,
-                        app.packageName,
-                        amount,
-                        _description.text,
-                        _category,
-                      );
-                      setState(() {
-                        loading=false;
-                      });
                       Navigator.pushReplacement(
                         context,
                         new MaterialPageRoute(
                           builder: (context) => new CheckOut(
-                            tid: tid,
                             amount: amount,
-                            uid: user.uid,
+                            description: _description.text,
+                            category: _category,
+                            upiApp: app.packageName,
+                            payeeName: '',
+                            payeeUpi: upi,
                           ),
                         ),
                       );
@@ -318,43 +284,71 @@ class _PayUPIState extends State<PayUPI> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Container(
-                    width: 320,
-                    child: SelectFormField(
-                      type: SelectFormFieldType.dropdown,
-                      initialValue: _category,
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          categoryIcon[_category],
-                          color: categoryColor[_category],
-                        ),
-                        suffixIcon: Icon(
-                          Icons.arrow_drop_down,
-                          color: Colors.deepPurpleAccent,
-                        ),
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                        labelText: 'Category',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: categories
-                          .map((cat) => {
-                                'value': cat,
-                                'label': cat,
-                                'icon': Icon(
-                                  categoryIcon[cat],
-                                  color: categoryColor[cat],
+                SizedBox(height: 10,),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 15.0),
+                  height: 40,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: List<Widget>.from(categories.map((entry) {
+                      return _category == entry
+                          ? Padding(
+                              padding: EdgeInsets.all(5.0),
+                              child: Container(
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).cardColor,
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                    color: Colors.deepPurpleAccent,
+                                    width: 1,
+                                  ),
                                 ),
-                              })
-                          .toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          _category = val;
-                        });
-                      },
-                    ),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 15,
+                                      backgroundColor:
+                                          Theme.of(context).cardColor,
+                                      child: Icon(
+                                        categoryIcon[entry],
+                                        size: 15,
+                                        color: categoryColor[entry],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                                      child: Text(
+                                        entry,
+                                        style: TextStyle(
+                                            color: Colors.deepPurpleAccent),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          : InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _category = entry;
+                                });
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.all(5.0),
+                                child: CircleAvatar(
+                                  backgroundColor: Theme.of(context).cardColor,
+                                  radius: 15,
+                                  child: Icon(
+                                    categoryIcon[entry],
+                                    size: 15,
+                                    color: categoryColor[entry],
+                                  ),
+                                ),
+                              ),
+                            );
+                    })),
                   ),
                 ),
               ],

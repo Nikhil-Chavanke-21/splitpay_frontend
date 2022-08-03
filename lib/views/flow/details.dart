@@ -43,27 +43,6 @@ class _DetailState extends State<Detail> {
     fontSize: 14,
   );
 
-  addTransaction(payeeName, payeeUpi, payer, upiApp, amount, description, category) async {
-    var url = Uri.http(backend_url, '/v1/transaction/');
-    var headers = {"content-type": "application/json"};
-    var payload = {
-        "amount": amount,
-        "payeeUpi": payeeUpi,
-        "payeeName": payeeName,
-        "payer": payer,
-        "upiApp": upiApp,
-        "description": description,
-        "category": category,
-    };
-    String body = jsonEncode(payload);
-    Response response = await http.post(
-      url,
-      headers: headers,
-      body: body,
-    );
-    return response.body;
-  }
-
   @override
   void initState() {
     fields = splitQueryString(widget.url.code.split('?')[1]);
@@ -103,7 +82,6 @@ class _DetailState extends State<Detail> {
  }
 
   Widget displayUpiApps(BuildContext context) {
-    final user = Provider.of<UserId>(context);
 
     if (apps == null || loading)
       return Center(child: CircularProgressIndicator());
@@ -133,28 +111,16 @@ class _DetailState extends State<Detail> {
                       ..setData(Uri.parse(widget.url.code+'&mode=02&cu=INR&am=${amount}'))
                       ..startActivity().catchError((e) => print(e));
 
-                      setState(() {
-                        loading = true;
-                      });
-                      String tid = await addTransaction(
-                          fields['pn'],
-                          fields['pa'],
-                          user.uid,
-                          app.packageName,
-                          amount,
-                          _description.text,
-                          _category,
-                      );
-                      setState(() {
-                        loading = false;
-                      });
                       Navigator.pushReplacement(
                         context,
                         new MaterialPageRoute(
                           builder: (context) => new CheckOut(
-                            tid: tid,
                             amount: amount,
-                            uid: user.uid,
+                            description: _description.text,
+                            category: _category,
+                            upiApp: app.packageName,
+                            payeeName: fields['pn'],
+                            payeeUpi: fields['pa'],
                           ),
                         ),
                       );

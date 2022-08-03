@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 import 'package:splitpay/models/user.dart';
 import 'package:splitpay/views/expense/dashboard.dart';
@@ -40,7 +39,7 @@ class _TabsState extends State<Tabs> {
       Dashboard(),
       Home(),
       Groups(uid: user.uid),
-      Profile(),
+      Profile(uid: user.uid, photoURL: user.photoURL),
     ];
 
     return Scaffold(
@@ -87,7 +86,6 @@ class _TabsState extends State<Tabs> {
             offset: Offset(0, 1),
             blurRadius: 12,
             spreadRadius: 0.5,
-            color: Colors.grey,
           ),
         ),
       ),

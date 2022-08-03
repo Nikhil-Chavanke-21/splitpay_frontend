@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:splitpay/views/home/add_manually.dart';
 import 'package:splitpay/views/home/pay_upi.dart';
 import 'package:splitpay/views/home/qr_code.dart';
@@ -10,8 +11,7 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).backgroundColor,
+      appBar: NeumorphicAppBar(
         title: Text('Home'),
         centerTitle: true,
       ),
@@ -25,7 +25,7 @@ class Home extends StatelessWidget {
                 onTap: (){
                   Navigator.push(context, MaterialPageRoute(builder: (context)=>QRViewExample()));
                 },
-                child: Card(
+                child: Neumorphic(
                   child: Container(
                     height: 100,
                     width: 90,
@@ -36,11 +36,16 @@ class Home extends StatelessWidget {
                           child: Icon(
                             Icons.qr_code_2,
                             size: 40.0,
+                            color: Colors.cyanAccent,
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text('Scan QR'),
+                          child: Text('Scan QR',
+                            style: TextStyle(
+                              color: Colors.white70,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -51,7 +56,7 @@ class Home extends StatelessWidget {
                 onTap: (){
                   Navigator.push(context, MaterialPageRoute(builder: (context) => PayUPI()));
                 },
-                child: Card(
+                child: Neumorphic(
                   child: Container(
                     height: 100,
                     width: 90,
@@ -62,11 +67,16 @@ class Home extends StatelessWidget {
                           child: Icon(
                             Icons.alternate_email,
                             size: 40.0,
+                            color: Colors.cyanAccent,
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text('Pay UPI'),
+                          child: Text('Pay UPI',
+                            style: TextStyle(
+                              color: Colors.white70,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -77,7 +87,7 @@ class Home extends StatelessWidget {
                 onTap: (){
                   Navigator.push(context, MaterialPageRoute(builder: (context) => AddManually()));
                 },
-                child: Card(
+                child: Neumorphic(
                   child: Container(
                     height: 100,
                     width: 90,
@@ -88,11 +98,17 @@ class Home extends StatelessWidget {
                           child: Icon(
                             Icons.add_box_outlined,
                             size: 40.0,
+                            color: Colors.cyanAccent,
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text('Add Man.'),
+                          child: Text(
+                            'Add Man.',
+                            style: TextStyle(
+                              color: Colors.white70,
+                            ),
+                          ),
                         ),
                       ],
                     ),

@@ -9,10 +9,13 @@ import 'package:splitpay/models/user.dart';
 import 'package:splitpay/views/flow/add_spenders.dart';
 
 class CheckOut extends StatefulWidget {
-  const CheckOut({ Key? key, this.tid, this.amount, this.uid }) : super(key: key);
-  final tid;
-  final uid;
+  const CheckOut({ Key? key, this.amount, this.description, this.category, this.upiApp, this.payeeName, this.payeeUpi}) : super(key: key);
   final amount;
+  final description;
+  final category;
+  final upiApp;
+  final payeeName;
+  final payeeUpi;
 
   @override
   _CheckOutState createState() => _CheckOutState();
@@ -20,13 +23,17 @@ class CheckOut extends StatefulWidget {
 
 class _CheckOutState extends State<CheckOut> {
 
-  addExpense(userId, transactionId, amount) async {
+  addExpense(amount, payeeUpi, payeeName, payer, upiApp, description, category) async {
     var url = Uri.http(backend_url, '/v1/expense/');
     var headers = {"content-type": "application/json"};
     var payload = {
-      "userId": userId,
-      "transactionId": transactionId,
-      "amount": amount,
+      'amount': amount,
+      'payeeUpi': payeeUpi,
+      'payeeName': payeeName,
+      'payer': payer,
+      'upiApp': upiApp,
+      'description': description,
+      'category': category,
     };
     String body = jsonEncode(payload);
     await http.post(
@@ -47,7 +54,15 @@ class _CheckOutState extends State<CheckOut> {
           children: <Widget>[
             ElevatedButton(
               onPressed: () async {
-                await addExpense(widget.uid, widget.tid, widget.amount);
+                await addExpense(
+                  widget.amount,
+                  widget.payeeUpi,
+                  widget.payeeName,
+                  user.uid,
+                  widget.upiApp,
+                  widget.description,
+                  widget.category,
+                );
                 Navigator.pop(context);
               },
               style: ButtonStyle(
@@ -74,9 +89,14 @@ class _CheckOutState extends State<CheckOut> {
                   context,
                   new MaterialPageRoute(
                     builder: (context) => new AddSpenders(
-                      tid: widget.tid,
+                      uid: user.uid,
+                      name: user.name,
                       amount: widget.amount,
-                      uid: widget.uid,
+                      description: widget.description,
+                      category: widget.category,
+                      upiApp: widget.upiApp,
+                      payeeName: widget.payeeName,
+                      payeeUpi: widget.payeeUpi,
                     ),
                   ),
                 );

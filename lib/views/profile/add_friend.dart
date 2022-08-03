@@ -88,7 +88,6 @@ class _AddFriendState extends State<AddFriend> {
                         loading=true;
                       });
                       Map res=await addFriend(_friendEmail.text);
-                      print(res);
                       String message='';
                       if(res['code']==409){
                         message=res['message'];

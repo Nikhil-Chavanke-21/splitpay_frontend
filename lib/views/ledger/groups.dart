@@ -1,13 +1,17 @@
 import 'dart:convert';
 
+// import 'package:api_cache_manager/models/cache_db_model.dart';
+// import 'package:api_cache_manager/utils/cache_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:http/http.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:splitpay/views/components/loading.dart';
 import 'package:splitpay/views/ledger/friend_logs.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:splitpay/config.dart';
 import 'package:splitpay/views/ledger/group_logs.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class Groups extends StatefulWidget {
   const Groups({Key ?key, this.uid}) : super(key: key);
@@ -29,9 +33,21 @@ class _GroupsState extends State<Groups> {
   }
 
   _getContacts() async {
-    var url=Uri.http(backend_url, '/v1/user/contacts/'+widget.uid);
-    List response=json.decode((await http.get(url)).body);
-    contacts=response;
+
+    // var isCacheExist= await APICacheManager().isAPICacheKeyExist('groups');
+    // if(!isCacheExist){
+      var url=Uri.http(backend_url, '/v1/user/contacts/' + widget.uid);
+      Response response = await http.get(url);
+      // APICacheDBModel cacheDBModel = new APICacheDBModel(
+      //   key: "groups",
+      //   syncData: response.body,
+      // );
+      // await APICacheManager().addCacheData(cacheDBModel);
+      contacts = json.decode(response.body);
+    // } else {
+    //   var cacheData=await APICacheManager().getCacheData("groups");
+    //   contacts=json.decode(cacheData.syncData);
+    // }
     setState(() {
       loading=false;
     });
@@ -41,33 +57,34 @@ class _GroupsState extends State<Groups> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme.of(context).canvasColor,
         title: Text('Groups'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            //TODO: to implement seaarch
-            onPressed: () {},
-            icon: Icon(Icons.search),
-          ),
-        ],
       ),
       body: loading == true
           ? Loading()
-          : SafeArea(
-            child: Container(
-              child: Expanded(
-                child: ListView.builder(
-                itemCount: contacts!.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return MemberItem(
-                    contacts![index]['id'],
-                    contacts![index]['name'],
-                    contacts![index]['photoURL'],
-                    contacts![index]['isGroup'],
-                    index,
-                  );
-                }),
+          : RefreshIndicator(
+            onRefresh: () async{
+              setState(() {
+                loading=true;
+              });
+              await _getContacts();
+            },
+            child: SafeArea(
+              child: Container(
+                child: Expanded(
+                  child: ListView.builder(
+                      itemCount: contacts!.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return MemberItem(
+                          contacts![index]['id'],
+                          contacts![index]['name'],
+                          contacts![index]['photoURL'],
+                          contacts![index]['isGroup'],
+                          index,
+                        );
+                      }),
+                ),
               ),
             ),
           ),
@@ -76,8 +93,19 @@ class _GroupsState extends State<Groups> {
   Widget MemberItem(
       String id, String name, String photoURL, bool isGroup, int index) {
     return ListTile(
-      leading: photoURL!=null ?CircleAvatar(
-        backgroundImage: NetworkImage(photoURL),
+      leading: photoURL!=null ?
+      Container(
+        width: 40,
+        height: 40,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20.0),
+          child: CachedNetworkImage(
+            imageUrl: photoURL,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => new CircularProgressIndicator(),
+            errorWidget: (context, url, error) => new Icon(Icons.error),
+          ),
+        ),
       ):isGroup?CircleAvatar(
         backgroundColor: Colors.green[700],
         child: Icon(

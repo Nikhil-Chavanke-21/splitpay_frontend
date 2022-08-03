@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:splitpay/config.dart';
@@ -56,73 +57,85 @@ class _MonthStatsState extends State<MonthStats> {
         centerTitle: true,
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              LinearDatePicker(
-                showLabels: false,
-                endDate: DateFormat("yyyy/MM/dd")
-                    .format(DateTime.now())
-                    .toString(),
-                dateChangeListener: (String selectedDate) {
-                  List date = selectedDate.split('/');
-                  _year = int.parse(date[0]);
-                  _month = int.parse(date[1]);
-                },
-                selectedRowStyle: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                ),
-                showMonthName: true,
-                isJalaali: false,
-                showDay: false,
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(10),
               ),
-              Divider(),
-              ElevatedButton(
-                onPressed: () async {
-                  setState(() {
-                    loading = true;
-                  });
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  LinearDatePicker(
+                    showLabels: false,
+                    endDate: DateFormat("yyyy/MM/dd")
+                        .format(DateTime.now())
+                        .toString(),
+                    dateChangeListener: (String selectedDate) {
+                      List date = selectedDate.split('/');
+                      _year = int.parse(date[0]);
+                      _month = int.parse(date[1]);
+                    },
+                    selectedRowStyle: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    showMonthName: true,
+                    isJalaali: false,
+                    showDay: false,
+                  ),
+                  Divider(),
+                  ElevatedButton(
+                    onPressed: () async {
+                      setState(() {
+                        loading = true;
+                      });
 
-                  Map<String, dynamic> query = {
-                    'year': _year.toString(),
-                    'month': _month.toString(),
-                  };
-                  var url = Uri.http(
-                      backend_url,
-                      '/v1/user/stats/monthly/' + widget.uid,
-                      query);
-                  Map response = json.decode((await http.get(url)).body);
+                      Map<String, dynamic> query = {
+                        'year': _year.toString(),
+                        'month': _month.toString(),
+                      };
+                      var url = Uri.http(
+                          backend_url,
+                          '/v1/user/stats/monthly/' + widget.uid,
+                          query);
+                      Map response = json.decode((await http.get(url)).body);
 
-                  stats = response['stats'];
-                  expenses = response['expenses'];
+                      stats = response['stats'];
+                      expenses = response['expenses'];
 
-                  setState(() {
-                    loading = false;
-                  });
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                                          Colors.deepPurpleAccent),
-                ),
-                child: Text('Fetch Expenses'),
+                      setState(() {
+                        loading = false;
+                      });
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                                              Colors.deepPurpleAccent),
+                    ),
+                    child: Text('Fetch Expenses'),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
           loading == true
           ? Loading()
           : expenses!.length==0
           ? SizedBox(height: 50)
           : Container(
+            color: Colors.black45,
             padding: EdgeInsets.symmetric(horizontal: 15.0),
-            height: 100,
+            height: 90,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: List<Widget>.from(stats!.keys.map((entry) {
                 return Padding(
                   padding: EdgeInsets.all(5.0),
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       CircleAvatar(
                         radius: 25.0,
@@ -137,6 +150,7 @@ class _MonthStatsState extends State<MonthStats> {
                         style: TextStyle(
                           fontSize: 15.0,
                           fontWeight: FontWeight.w500,
+                          color: Colors.white70
                         ),
                       ),
                     ],
@@ -145,10 +159,14 @@ class _MonthStatsState extends State<MonthStats> {
               })),
             ),
           ),
-          Text(
-            'Expenses',
-            style: TextStyle(
-              fontSize: 25,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(15, 10, 0, 10),
+            child: Text(
+              'Expenses',
+              style: TextStyle(
+                fontSize: 25,
+                color: Colors.white,
+              ),
             ),
           ),
           loading == true
@@ -190,26 +208,32 @@ class _MonthStatsState extends State<MonthStats> {
                             .toLowerCase();
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                    tileColor: Theme.of(context).cardColor,
-                    title: Text(entry['description']),
-                    subtitle: Text(entry['payeeUpi']),
-                    leading: CircleAvatar(
-                      backgroundColor: Theme.of(context).cardColor,
-                      child: Icon(
-                        categoryIcon[entry['category']],
-                        color: categoryColor[entry['category']],
-                      ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.deepPurpleAccent,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Text(formattedDate),
-                        Text(
-                          '₹ ' + entry['amount'].toString(),
-                          style: TextStyle(fontSize: 25),
+                    child: ListTile(
+                      title: Text(entry['description']),
+                      subtitle: Text(entry['payeeUpi']),
+                      leading: CircleAvatar(
+                        backgroundColor: Theme.of(context).backgroundColor,
+                        radius: 23,
+                        child: Icon(
+                          categoryIcon[entry['category']],
+                          color: categoryColor[entry['category']],
                         ),
-                      ],
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text(formattedDate),
+                          Text(
+                            '₹ ' + entry['amount'].toString(),
+                            style: TextStyle(fontSize: 25),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );

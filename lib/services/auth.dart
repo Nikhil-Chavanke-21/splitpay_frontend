@@ -1,6 +1,11 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:splitpay/config.dart';
 import 'package:splitpay/models/user.dart';
+import 'package:http/http.dart' as http;
 
 class AuthService {
   final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -26,6 +31,20 @@ class AuthService {
     return _auth.authStateChanges().map(_userFromFirebaseUser);
   }
 
+  updateUser(uid, registrationToken) async {
+    var url = Uri.http(backend_url, '/v1/user/' + uid);
+    var headers = {"content-type": "application/json"};
+    var payload = {
+      'registrationToken': registrationToken,
+    };
+    String body = jsonEncode(payload);
+    await http.put(
+      url,
+      headers: headers,
+      body: body,
+    );
+  }
+
   //  Sign In with Google
   Future signInWithGoogle() async {
     try {
@@ -36,7 +55,12 @@ class AuthService {
           idToken: googleSignInAuthentication.idToken,
           accessToken: googleSignInAuthentication.accessToken);
       User? user = (await _auth.signInWithCredential(credential)).user;
-      return _userFromFirebaseUser(user!);
+
+      // update regitrationToken in db
+      String? token = await FirebaseMessaging.instance.getToken();
+      await updateUser(user!.uid, token);
+
+      return _userFromFirebaseUser(user);
     } catch (e) {
       print(e.toString());
       return null;

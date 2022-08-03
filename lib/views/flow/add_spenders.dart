@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:http/http.dart';
@@ -11,10 +12,16 @@ import 'package:splitpay/views/components/loading.dart';
 import 'package:splitpay/views/flow/split.dart';
 
 class AddSpenders extends StatefulWidget {
-  const AddSpenders({ Key? key, this.tid, this.amount, this.uid }) : super(key: key);
-  final tid;
+  const AddSpenders({ Key? key, this.amount, this.uid, this.name, this.description, this.category, this.upiApp, this.payeeName, this.payeeUpi }) : super(key: key);
   final uid;
   final amount;
+  final description;
+  final category;
+  final upiApp;
+  final payeeName;
+  final payeeUpi;
+  final name;
+
   @override
   _AddSpendersState createState() => _AddSpendersState();
 }
@@ -108,9 +115,14 @@ class _AddSpendersState extends State<AddSpenders> {
                                     new MaterialPageRoute(
                                       builder: (context) => new Split(
                                         members: selectedMembers,
-                                        tid: widget.tid,
                                         amount: widget.amount,
                                         uid: widget.uid,
+                                        name: widget.name,
+                                        description: widget.description,
+                                        category: widget.category,
+                                        upiApp: widget.upiApp,
+                                        payeeName: widget.payeeName,
+                                        payeeUpi: widget.payeeUpi,
                                       ),
                                     ),
                                   );
@@ -130,10 +142,19 @@ class _AddSpendersState extends State<AddSpenders> {
       bool isGroup, int index) {
     return ListTile(
       leading: photoURL != null
-          ? CircleAvatar(
-              backgroundImage: NetworkImage(photoURL),
-            )
-          : isGroup
+          ? Container(
+            width: 40,
+            height: 40,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20.0),
+              child: CachedNetworkImage(
+                imageUrl: photoURL,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => new CircularProgressIndicator(),
+                errorWidget: (context, url, error) => new Icon(Icons.error),
+              ),
+            ),
+          ): isGroup
               ? CircleAvatar(
                   backgroundColor: Colors.deepPurpleAccent,
                   child: Icon(

@@ -27,20 +27,19 @@ class _SignInState extends State<SignIn> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 40.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                Image(
+                  image: AssetImage('assets/images/splitpay.png'),
+                  width: 50,
+                  height: 50,
+                ),
                 Text(
                   'SplitPay',
                   style: TextStyle(
-                    color: Colors.white,
                     fontSize: 35.0,
                     fontWeight: FontWeight.bold,
                   ),
-                ),
-                Icon(
-                  Icons.call_split,
-                  size: 45.0,
-                  color: Colors.white,
                 ),
               ],
             ),
@@ -75,7 +74,6 @@ class _SignInState extends State<SignIn> {
             child: Text(
               description,
               style: TextStyle(
-                color: Colors.white,
                 fontSize: 20.0,
               ),
             ),
@@ -90,7 +88,6 @@ class _SignInState extends State<SignIn> {
     return loading
         ? Loading()
         : Scaffold(
-            backgroundColor: Colors.lightBlue.shade800,
             body: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -149,7 +146,7 @@ class _SignInState extends State<SignIn> {
                   width: double.infinity,
                   height: 250.0,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).backgroundColor,
+                    color: Theme.of(context).canvasColor,
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(20.0),
                         topRight: Radius.circular(20.0)),
@@ -169,14 +166,12 @@ class _SignInState extends State<SignIn> {
                         child: ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
-                                  Theme.of(context).backgroundColor),
-                              foregroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.black),
+                                  Theme.of(context).canvasColor),
                               shape: MaterialStateProperty.all<
                                       RoundedRectangleBorder>(
                                   RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(28.0),
-                                      side: BorderSide(color: Theme.of(context).accentColor)))),
+                                      side: BorderSide(color: Colors.white)))),
                           onPressed: () async {
                             setState(() {
                               loading = true;
@@ -203,7 +198,7 @@ class _SignInState extends State<SignIn> {
                                 Text(
                                   'Sign In with',
                                   style: TextStyle(
-                                    color: Theme.of(context).accentColor,
+                                    color: Colors.white,
                                   ),
                                 ),
                                 SizedBox(

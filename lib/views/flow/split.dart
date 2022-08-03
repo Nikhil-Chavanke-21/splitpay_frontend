@@ -2,17 +2,26 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:custom_radio_grouped_button/custom_radio_grouped_button.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:splitpay/config.dart';
-import 'package:splitpay/views/components/loading.dart';
+import 'package:splitpay/models/user.dart';
+import 'package:splitpay/views/theme_provider.dart';
 
 class Split extends StatefulWidget {
-  const Split({ Key? key, this.members, this.amount, this.tid, this.uid }) : super(key: key);
+  const Split({ Key? key, this.members, this.amount, this.uid, this.name, this.description, this.category, this.upiApp, this.payeeName, this.payeeUpi }) : super(key: key);
   final members;
   final amount;
-  final tid;
+  final description;
+  final category;
+  final upiApp;
+  final payeeName;
+  final payeeUpi;
   final uid;
+  final name;
 
   @override
   _SplitState createState() => _SplitState();
@@ -23,7 +32,6 @@ class _SplitState extends State<Split> {
   Map split={};
   int count=1;
   List memberList=[];
-  String spliting='equal';
 
   @override
   void initState() {
@@ -53,7 +61,7 @@ class _SplitState extends State<Split> {
     });
     if(memberList.where((element) => element['id']==widget.uid).length==0){
       memberList.add({
-        'name': 'Nikhil Chavanke',
+        'name': widget.name,
         'id': widget.uid,
         'group': null,
         'isSelected': true,
@@ -68,27 +76,39 @@ class _SplitState extends State<Split> {
 
   splitExpense() async {
     Map<String, dynamic> split = {};
+    Map<String, dynamic> zeros = {};
 
     memberList.forEach((member) {
-      if (member['group'] != null) {
-        if (split.containsKey(member['group']))
-          split[member['group']][member['id']] = member['amount'];
-        else
-          split[member['group']] = {
-            member['id']: member['amount'],
-          };
-      } else
-        split[member['id']] = member['amount'];
+      if(member['amount']!=0){
+        if (member['group'] != null) {
+          if (split.containsKey(member['group']))
+            split[member['group']][member['id']] = member['amount'];
+          else
+            split[member['group']] = {
+              member['id']: member['amount'],
+            };
+        } else
+          split[member['id']] = member['amount'];
+      } else {
+        zeros[member['id']] = member['group'];
+      }
     });
     var url = Uri.http(backend_url, '/v1/expense/split/');
     var headers = {"content-type": "application/json"};
     Map<String, dynamic> payload = {
-      'transactionId': widget.tid,
       'payer': widget.uid,
+      'name': widget.name.split(' ')[0],
+      'description': widget.description,
       'members': split,
+      'zeros': zeros,
+      'amount': widget.amount,
+      'payeeUpi': widget.payeeUpi,
+      'payeeName': widget.payeeName,
+      'upiApp': widget.upiApp,
+      'category': widget.category,
     };
     String body = jsonEncode(payload);
-    Response response = await http.post(
+    await http.post(
       url,
       headers: headers,
       body: body,
@@ -106,41 +126,29 @@ class _SplitState extends State<Split> {
               child: Container(
                 child: Column(
                   children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20.0),
-                      child: CustomRadioButton(
-                        margin: EdgeInsets.all(15.0),
-                        enableButtonWrap: true,
-                        width: 120.0,
-                        height: 50.0,
-                        radius: 20,
-                        shapeRadius: 20,
-                        absoluteZeroSpacing: true,
-                        elevation: 0.0,
-                        selectedBorderColor: Colors.deepPurpleAccent,
-                        unSelectedBorderColor: Colors.deepPurpleAccent,
-                        selectedColor: Colors.deepPurpleAccent,
-                        unSelectedColor: Theme.of(context).canvasColor,
-                        defaultSelected: spliting,
-                        buttonLables: ['Equal', 'Unequal'],
-                        buttonValues: ['equal', 'unequal'],
-                        buttonTextStyle: ButtonTextStyle(
-                          selectedColor: Theme.of(context).canvasColor,
-                          unSelectedColor: Colors.deepPurpleAccent,
-                          textStyle: TextStyle(
-                            fontSize: 20,
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 35),
+                        child: NeumorphicRadio(
+                          padding: EdgeInsets.all(15),
+                          onChanged: (val) {
+                            setState(() {
+                              for (int i = 0; i < memberList.length; i++) {
+                                if (memberList[i]['isSelected'])
+                                  memberList[i]['amount'] = widget.amount / count;
+                              }
+                            });
+                          },
+                          style: NeumorphicRadioStyle(
+                            shape: NeumorphicShape.flat,
+                            boxShape: NeumorphicBoxShape.circle(),
+                          ),
+                          child: Icon(
+                            FontAwesomeIcons.equals,
+                            color: Theme.of(context).accentColor,
                           ),
                         ),
-                        radioButtonValue: (value) {
-                          setState(() {
-                            spliting = value.toString();
-                            if(spliting=='equal'){
-                              for(int i=0;i<memberList.length;i++){
-                                if(memberList[i]['isSelected'])memberList[i]['amount']=widget.amount/count;
-                              }
-                            }
-                          });
-                        },
                       ),
                     ),
                     Expanded(
@@ -195,86 +203,79 @@ class _SplitState extends State<Split> {
   Widget SplitItem(String name, bool isSelected, double amount, int index) {
     TextEditingController _amountTextController = TextEditingController();
     _amountTextController.text=amount.toStringAsFixed(1);
-    return ListTile(
-      title: Text(
-        name,
-        style: TextStyle(
-          fontSize: 20.0,
-          fontWeight: FontWeight.w500,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Neumorphic(
+        style: NeumorphicStyle(
+          shadowLightColor: memberList[index]['isSelected']? Colors.grey:NeumorphicTheme.baseColor(context),
         ),
-      ),
-      leading: IconButton(
-            onPressed: (){
-              setState(() {
-                memberList[index]['isSelected'] = !memberList[index]['isSelected'];
-                if(memberList[index]['isSelected'] == true)count+=1;
-                else if (memberList[index]['isSelected'] == false){
-                  count-=1;
-                  memberList[index]['amount']=0.0;
-                }
-                if(spliting=='equal'){
-                  for(int i=0;i<memberList.length;i++){
-                    if(memberList[i]['isSelected'])memberList[i]['amount']=widget.amount/count;
-                  }
-                };
-              });
-            },
-            icon: Icon(
-              isSelected?Icons.check_circle:Icons.check_circle_outline,
-              color: Colors.deepPurpleAccent,
+        child: InkWell(
+          onTap: (){
+            setState(() {
+              memberList[index]['isSelected'] =
+                  !memberList[index]['isSelected'];
+              if (memberList[index]['isSelected'] == true)
+                count += 1;
+              else if (memberList[index]['isSelected'] == false) {
+                count -= 1;
+                memberList[index]['amount'] = 0.0;
+              }
+            });
+          },
+          child: ListTile(
+            title: Text(
+              name,
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w500,
+                color: memberList[index]['isSelected']?Colors.white:Colors.grey,
+              ),
+            ),
+            trailing: SizedBox(
+              width: 130.0,
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 90.0,
+                    child: TextFormField(
+                      style: TextStyle(
+                        color: memberList[index]['isSelected']?Colors.white: Theme.of(context).canvasColor,
+                      ),
+                      onEditingComplete: (){
+                        setState(() {
+                          memberList[index]['amount']=double.parse(_amountTextController.text);
+                        });
+                      },
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      controller: _amountTextController,
+                      cursorColor: Theme.of(context).accentColor,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 40.0,
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.format_color_fill,
+                        color: memberList[index]['isSelected']?Theme.of(context).accentColor:Theme.of(context).canvasColor,
+                      ),
+                      onPressed: () {
+                        if(memberList[index]['isSelected']){
+                          setState(() {
+                            double remainingAmount=memberList.where((element) => element['isSelected']).toList().map((element)=>element['amount']).toList().reduce((a,b)=>a+b);
+                            memberList[index]['amount']+=widget.amount-remainingAmount;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-      trailing: SizedBox(
-        width: 130.0,
-        child: Row(
-          children: [
-            SizedBox(
-              width: 40.0,
-              child: IconButton(
-                icon: Icon(Icons.format_color_fill, color: Colors.deepPurpleAccent),
-                onPressed: () {
-                  if(memberList[index]['isSelected']){
-                    setState(() {
-                      double remainingAmount=memberList.where((element) => element['isSelected']).toList().map((element)=>element['amount']).toList().reduce((a,b)=>a+b);
-                      memberList[index]['amount']+=widget.amount-remainingAmount;
-                    });
-                  }
-                },
-              ),
-            ),
-            SizedBox(
-              width: 90.0,
-              child: TextFormField(
-                onEditingComplete: (){
-                  setState(() {
-                    memberList[index]['amount']=double.parse(_amountTextController.text);
-                  });
-                },
-                keyboardType: TextInputType.number,
-                textAlign: TextAlign.center,
-                controller: _amountTextController,
-                cursorColor: Colors.deepPurpleAccent,
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
-                  fillColor: Colors.white,
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.deepPurpleAccent,
-                      width: 3.0,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.deepPurpleAccent,
-                      width: 2.0,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );
