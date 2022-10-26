@@ -182,7 +182,32 @@ class _PayUPIState extends State<PayUPI> {
     return Scaffold(
       body: Column(
         children: <Widget>[
-          SizedBox(height: 100.0,),
+          SizedBox(
+            height: 30,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(25, 0, 5, 0),
+                child: SizedBox(
+                  width: 140,
+                  child: Text(
+                    'Pay to UPI',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 40,
+                    ),
+                  ),
+                ),
+              ),
+              Image(
+                image: AssetImage('assets/images/info.png'),
+                width: 200,
+              ),
+            ],
+          ),
           Form(
             key: _formKey,
             child: Column(
@@ -297,7 +322,7 @@ class _PayUPIState extends State<PayUPI> {
                               child: Container(
                                 height: 100,
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor,
+                                  color: Theme.of(context).primaryColorLight,
                                   borderRadius: BorderRadius.circular(15),
                                   border: Border.all(
                                     color: Colors.deepPurpleAccent,
@@ -309,7 +334,7 @@ class _PayUPIState extends State<PayUPI> {
                                     CircleAvatar(
                                       radius: 15,
                                       backgroundColor:
-                                          Theme.of(context).cardColor,
+                                        Theme.of(context).primaryColorLight,
                                       child: Icon(
                                         categoryIcon[entry],
                                         size: 15,
@@ -338,7 +363,7 @@ class _PayUPIState extends State<PayUPI> {
                               child: Padding(
                                 padding: EdgeInsets.all(5.0),
                                 child: CircleAvatar(
-                                  backgroundColor: Theme.of(context).cardColor,
+                                  backgroundColor: Theme.of(context).primaryColorLight,
                                   radius: 15,
                                   child: Icon(
                                     categoryIcon[entry],

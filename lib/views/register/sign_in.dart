@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:splitpay/services/auth.dart';
 import 'package:splitpay/views/components/loading.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class SignIn extends StatefulWidget {
   @override
@@ -39,6 +38,7 @@ class _SignInState extends State<SignIn> {
                   style: TextStyle(
                     fontSize: 35.0,
                     fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -47,8 +47,8 @@ class _SignInState extends State<SignIn> {
           Container(
             height: 260,
             child: Center(
-              child: SvgPicture.asset(
-                image,
+              child: Image(
+                image: AssetImage(image),
                 height: size,
                 width: size,
               ),
@@ -62,7 +62,7 @@ class _SignInState extends State<SignIn> {
               child: Text(
                 title,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).primaryColorLight,
                   fontSize: 35.0,
                   fontWeight: FontWeight.bold,
                 ),
@@ -88,6 +88,7 @@ class _SignInState extends State<SignIn> {
     return loading
         ? Loading()
         : Scaffold(
+            backgroundColor: Theme.of(context).primaryColor,
             body: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -105,12 +106,12 @@ class _SignInState extends State<SignIn> {
                         });
                       }),
                   items: [
-                    getItem('assets/images/split_bills.svg', 'Split Bills',
-                        'Easily split your payment, No manual entry needed to track dues', 180),
-                    getItem('assets/images/settle_due.svg', 'Settle dues',
-                        'Settle dues with your friends in just one click, with payment app of you choice', 150),
-                    getItem('assets/images/track_expenses.svg', 'Track Expenses',
-                        'Track your expenses with no efforts, and get all involved statistics', 120),
+                    getItem('assets/images/bills.png', 'Split Bills',
+                        'Easily split your payment, No manual entry needed to track dues', 200),
+                    getItem('assets/images/handshake.png', 'Settle dues',
+                        'Settle dues with your friends in just one click, with payment app of you choice', 200),
+                    getItem('assets/images/track.png', 'Track Expenses',
+                        'Track your expenses with no efforts, and get all involved statistics', 220),
                   ],
                 ),
                 Container(
@@ -198,7 +199,7 @@ class _SignInState extends State<SignIn> {
                                 Text(
                                   'Sign In with',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   ),
                                 ),
                                 SizedBox(

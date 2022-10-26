@@ -24,11 +24,19 @@ class _TabsState extends State<Tabs> {
     final user = Provider.of<UserId>(context);
 
     final iconList = <IconData>[
-      FontAwesomeIcons.chartBar,
+      FontAwesomeIcons.solidChartBar,
       Icons.home,
       Icons.group,
       Icons.person,
     ];
+
+    final iconListOutlined = <IconData>[
+      FontAwesomeIcons.chartBar,
+      Icons.home_outlined,
+      Icons.group_outlined,
+      Icons.person_outline,
+    ];
+
     var texts = [
       'Stats',
       'Home',
@@ -39,29 +47,26 @@ class _TabsState extends State<Tabs> {
       Dashboard(),
       Home(),
       Groups(uid: user.uid),
-      Profile(uid: user.uid, photoURL: user.photoURL),
+      Profile(uid: user.uid, photoURL: user.photoURL, name: user.name),
     ];
 
     return Scaffold(
       body: screens[_bottomNavIndex],
       bottomNavigationBar: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark.copyWith(
-          systemNavigationBarColor: Color(0xff373A36),
+          systemNavigationBarColor: Colors.white,
         ),
         child: AnimatedBottomNavigationBar.builder(
           itemCount: iconList.length,
           tabBuilder: (int index, bool isActive) {
-            final color = isActive
-                ? Theme.of(context).primaryColor
-                : Theme.of(context).accentColor;
             return Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  iconList[index],
-                  size: 24,
-                  color: color,
+                  isActive?iconList[index]:iconListOutlined[index],
+                  size: isActive?28:24,
+                  color: Theme.of(context).primaryColor,
                 ),
                 const SizedBox(height: 4),
                 Padding(
@@ -69,15 +74,15 @@ class _TabsState extends State<Tabs> {
                   child: Text(
                     texts[index],
                     maxLines: 1,
-                    style: TextStyle(color: color),
+                    style: TextStyle(color: Theme.of(context).primaryColor),
                   ),
                 )
               ],
             );
           },
-          backgroundColor: Color(0xff373A36),
+          backgroundColor: Colors.white,
           activeIndex: _bottomNavIndex,
-          splashColor: Theme.of(context).colorScheme.primary,
+          splashColor: Theme.of(context).primaryColor,
           splashSpeedInMilliseconds: 300,
           notchSmoothness: NotchSmoothness.defaultEdge,
           gapLocation: GapLocation.center,

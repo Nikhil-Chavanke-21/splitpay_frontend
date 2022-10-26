@@ -2,14 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:custom_radio_grouped_button/custom_radio_grouped_button.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:splitpay/config.dart';
 import 'package:splitpay/models/user.dart';
-import 'package:splitpay/views/theme_provider.dart';
 
 class Split extends StatefulWidget {
   const Split({ Key? key, this.members, this.amount, this.uid, this.name, this.description, this.category, this.upiApp, this.payeeName, this.payeeUpi }) : super(key: key);
@@ -130,9 +128,12 @@ class _SplitState extends State<Split> {
                       alignment: Alignment.centerRight,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 35),
-                        child: NeumorphicRadio(
-                          padding: EdgeInsets.all(15),
-                          onChanged: (val) {
+                        child: IconButton(
+                          icon: Icon(
+                            FontAwesomeIcons.equals,
+                            color: Theme.of(context).accentColor,
+                          ),
+                          onPressed: () {
                             setState(() {
                               for (int i = 0; i < memberList.length; i++) {
                                 if (memberList[i]['isSelected'])
@@ -140,14 +141,6 @@ class _SplitState extends State<Split> {
                               }
                             });
                           },
-                          style: NeumorphicRadioStyle(
-                            shape: NeumorphicShape.flat,
-                            boxShape: NeumorphicBoxShape.circle(),
-                          ),
-                          child: Icon(
-                            FontAwesomeIcons.equals,
-                            color: Theme.of(context).accentColor,
-                          ),
                         ),
                       ),
                     ),
@@ -205,75 +198,70 @@ class _SplitState extends State<Split> {
     _amountTextController.text=amount.toStringAsFixed(1);
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Neumorphic(
-        style: NeumorphicStyle(
-          shadowLightColor: memberList[index]['isSelected']? Colors.grey:NeumorphicTheme.baseColor(context),
-        ),
-        child: InkWell(
-          onTap: (){
-            setState(() {
-              memberList[index]['isSelected'] =
-                  !memberList[index]['isSelected'];
-              if (memberList[index]['isSelected'] == true)
-                count += 1;
-              else if (memberList[index]['isSelected'] == false) {
-                count -= 1;
-                memberList[index]['amount'] = 0.0;
-              }
-            });
-          },
-          child: ListTile(
-            title: Text(
-              name,
-              style: TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.w500,
-                color: memberList[index]['isSelected']?Colors.white:Colors.grey,
-              ),
+      child: InkWell(
+        onTap: (){
+          setState(() {
+            memberList[index]['isSelected'] =
+                !memberList[index]['isSelected'];
+            if (memberList[index]['isSelected'] == true)
+              count += 1;
+            else if (memberList[index]['isSelected'] == false) {
+              count -= 1;
+              memberList[index]['amount'] = 0.0;
+            }
+          });
+        },
+        child: ListTile(
+          title: Text(
+            name,
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.w500,
+              color: memberList[index]['isSelected']?Colors.white:Colors.grey,
             ),
-            trailing: SizedBox(
-              width: 130.0,
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 90.0,
-                    child: TextFormField(
-                      style: TextStyle(
-                        color: memberList[index]['isSelected']?Colors.white: Theme.of(context).canvasColor,
-                      ),
-                      onEditingComplete: (){
+          ),
+          trailing: SizedBox(
+            width: 130.0,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 90.0,
+                  child: TextFormField(
+                    style: TextStyle(
+                      color: memberList[index]['isSelected']?Colors.white: Theme.of(context).canvasColor,
+                    ),
+                    onEditingComplete: (){
+                      setState(() {
+                        memberList[index]['amount']=double.parse(_amountTextController.text);
+                      });
+                    },
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    controller: _amountTextController,
+                    cursorColor: Theme.of(context).accentColor,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 40.0,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.format_color_fill,
+                      color: memberList[index]['isSelected']?Theme.of(context).accentColor:Theme.of(context).canvasColor,
+                    ),
+                    onPressed: () {
+                      if(memberList[index]['isSelected']){
                         setState(() {
-                          memberList[index]['amount']=double.parse(_amountTextController.text);
+                          double remainingAmount=memberList.where((element) => element['isSelected']).toList().map((element)=>element['amount']).toList().reduce((a,b)=>a+b);
+                          memberList[index]['amount']+=widget.amount-remainingAmount;
                         });
-                      },
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      controller: _amountTextController,
-                      cursorColor: Theme.of(context).accentColor,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 10.0),
-                      ),
-                    ),
+                      }
+                    },
                   ),
-                  SizedBox(
-                    width: 40.0,
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.format_color_fill,
-                        color: memberList[index]['isSelected']?Theme.of(context).accentColor:Theme.of(context).canvasColor,
-                      ),
-                      onPressed: () {
-                        if(memberList[index]['isSelected']){
-                          setState(() {
-                            double remainingAmount=memberList.where((element) => element['isSelected']).toList().map((element)=>element['amount']).toList().reduce((a,b)=>a+b);
-                            memberList[index]['amount']+=widget.amount-remainingAmount;
-                          });
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

@@ -4,7 +4,6 @@ import 'dart:convert';
 // import 'package:api_cache_manager/utils/cache_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:splitpay/views/components/loading.dart';
 import 'package:splitpay/views/ledger/friend_logs.dart';
 import 'package:http/http.dart' as http;
@@ -57,8 +56,13 @@ class _GroupsState extends State<Groups> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).canvasColor,
         title: Text('Groups'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {},
+          ),
+        ],
         centerTitle: true,
       ),
       body: loading == true
@@ -95,10 +99,10 @@ class _GroupsState extends State<Groups> {
     return ListTile(
       leading: photoURL!=null ?
       Container(
-        width: 40,
-        height: 40,
+        width: 44,
+        height: 44,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20.0),
+          borderRadius: BorderRadius.circular(22),
           child: CachedNetworkImage(
             imageUrl: photoURL,
             fit: BoxFit.cover,
@@ -107,12 +111,14 @@ class _GroupsState extends State<Groups> {
           ),
         ),
       ):isGroup?CircleAvatar(
+        radius: 22,
         backgroundColor: Colors.green[700],
         child: Icon(
           Icons.group_outlined,
           color: Colors.white,
         ),
       ):CircleAvatar(
+        radius: 22,
         backgroundColor: Colors.green[700],
         child: Icon(
           Icons.person_outline_outlined,
@@ -122,6 +128,7 @@ class _GroupsState extends State<Groups> {
       title: Text(
         name,
         style: TextStyle(
+          fontSize: 20,
           fontWeight: FontWeight.w500,
         ),
       ),

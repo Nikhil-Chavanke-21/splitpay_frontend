@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
@@ -74,13 +73,27 @@ class _FriendLogsState extends State<FriendLogs> {
     });
   }
 
+  deleteExpense(tid, split) async {
+    var url = Uri.http(backend_url, '/v1/expense/delete/');
+    var headers = {"content-type": "application/json"};
+    Map<String, dynamic> payload = {
+      'split': split,
+      'tid': tid,
+    };
+    String body = jsonEncode(payload);
+    await http.post(
+      url,
+      headers: headers,
+      body: body,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return loading == true
       ? Loading()
       : Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).canvasColor,
         title: Row(
           children: [
             widget.photoURL != null
@@ -135,6 +148,7 @@ class _FriendLogsState extends State<FriendLogs> {
                             logs![index]['description'],
                             logs![index]['split'],
                             logs![index]['transaction'],
+                            logs![index]['payer'],
                             DateTime.fromMillisecondsSinceEpoch(
                               logs![index]['time'] * 1000
                             ),
@@ -213,7 +227,7 @@ class _FriendLogsState extends State<FriendLogs> {
   }
 
   Widget ExpenseItem(
-      int index, double amount, bool isMine, double expense, String category, String description, split, tid, DateTime time) {
+      int index, double amount, bool isMine, double expense, String category, String description, split, tid, payer, DateTime time) {
     String formattedDate = time.year != DateTime.now().year
         ? time.year.toString()
         : time.month != DateTime.now().month || time.day != DateTime.now().day
@@ -225,7 +239,7 @@ class _FriendLogsState extends State<FriendLogs> {
             : (amount - expense).toInt().toString());
     String paidBy = isMine ? 'You' : widget.name.split(' ')[0];
     return ListTile(
-      tileColor: _index==index?Colors.white24: NeumorphicTheme.baseColor(context),
+      tileColor: _index==index?Theme.of(context).primaryColor.withOpacity(0.5): Theme.of(context).canvasColor,
       title: Row(
         mainAxisAlignment: isMine? MainAxisAlignment.end: MainAxisAlignment.start,
         children: [
@@ -233,7 +247,7 @@ class _FriendLogsState extends State<FriendLogs> {
             children: [
               IconButton(
                 icon: Icon(Icons.edit),
-                color: Theme.of(context).canvasColor,
+                color: Theme.of(context).primaryColor,
                 onPressed: (){
                   Navigator.push(
                     context,
@@ -244,6 +258,8 @@ class _FriendLogsState extends State<FriendLogs> {
                         amount: amount,
                         split: split,
                         tid: tid,
+                        payer: payer,
+                        time: time,
                         setIndex: setIndex,
                       ),
                   ));
@@ -251,14 +267,14 @@ class _FriendLogsState extends State<FriendLogs> {
               ),
               IconButton(
                 icon: Icon(Icons.delete),
-                color: Theme.of(context).canvasColor,
+                color: Theme.of(context).primaryColor,
                 onPressed: () {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(  
                         title: Text("Are you sure?"),
-                        content: Text("Are you sure you want to delete this item permanently?"),
+                        content: Text("Are you sure you want to delete this expense permanently?"),
                         actions: [
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -266,8 +282,7 @@ class _FriendLogsState extends State<FriendLogs> {
                               child: Text('Cancel'),
                               style: ButtonStyle(
                                       backgroundColor:
-                                          MaterialStateProperty.all<Color>(
-                                              Theme.of(context).canvasColor),
+                                          MaterialStateProperty.all<Color>(Colors.black87),
                                     ),
                               onPressed: (){
                                 Navigator.of(context).pop();
@@ -283,7 +298,9 @@ class _FriendLogsState extends State<FriendLogs> {
                                           MaterialStateProperty.all<Color>(
                                               Colors.deepPurpleAccent),
                                     ),
-                              onPressed: () {},
+                              onPressed: () async {
+                                await deleteExpense(tid, split);
+                              },
                             ),
                           ),
                         ],  
@@ -311,13 +328,6 @@ class _FriendLogsState extends State<FriendLogs> {
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(context).canvasColor,
-                    blurRadius: 1,
-                    offset: Offset(2.0, 2.0),
-                  ),
-                ],
               ),
               child: Column(
                 children: [
@@ -326,14 +336,14 @@ class _FriendLogsState extends State<FriendLogs> {
                       Text(
                         'Paid by ',
                         style: TextStyle(
-                          color: Colors.white54,
+                          color: Theme.of(context).primaryColorLight,
                         ),
                       ),
                       Text(
                         paidBy,
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
-                          color: Colors.deepPurpleAccent,
+                          color: Colors.orangeAccent,
                         ),
                       ),
                       Expanded(
@@ -344,7 +354,7 @@ class _FriendLogsState extends State<FriendLogs> {
                         child: Text(
                             formattedDate,
                             style: TextStyle(
-                              color: Colors.white54,
+                              color: Theme.of(context).primaryColorLight,
                             ),
                         ),
                       ),
@@ -362,7 +372,7 @@ class _FriendLogsState extends State<FriendLogs> {
                             size: 30,
                           ),
                           radius: 25,
-                          backgroundColor: NeumorphicTheme.baseColor(context),
+                          backgroundColor: Colors.black54,
                         ),
                       ),
                       Padding(
@@ -375,6 +385,7 @@ class _FriendLogsState extends State<FriendLogs> {
                                 Text(
                                   amount.toInt().toString(),
                                   style: TextStyle(
+                                    color: Colors.white,
                                     fontSize: 26.0,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -384,6 +395,7 @@ class _FriendLogsState extends State<FriendLogs> {
                                   child: Text(
                                     '₹',
                                     style: TextStyle(
+                                      color: Colors.white,
                                       fontSize: 18.0,
                                     ),
                                   ),
@@ -396,7 +408,7 @@ class _FriendLogsState extends State<FriendLogs> {
                                   due,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.white38,
+                                    color: Theme.of(context).primaryColorLight,
                                   ),
                                 ),
                                 Icon(
@@ -412,7 +424,12 @@ class _FriendLogsState extends State<FriendLogs> {
                   ),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(description),
+                    child: Text(
+                      description,
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -423,12 +440,12 @@ class _FriendLogsState extends State<FriendLogs> {
                   children: [
                     IconButton(
                       icon: Icon(Icons.edit),
-                      color: Theme.of(context).canvasColor,
+                      color: Theme.of(context).primaryColor,
                       onPressed: () {},
                     ),
                     IconButton(
                       icon: Icon(Icons.delete),
-                      color: Theme.of(context).canvasColor,
+                      color: Theme.of(context).primaryColor,
                       onPressed: () {},
                     ),
                   ],
@@ -473,16 +490,21 @@ class _FriendLogsState extends State<FriendLogs> {
                 child: Container(),
               ),
               Text(
-                //  +
                 amount.toInt().toString(),
                 style: TextStyle(
+                  color: Colors.white,
                   fontSize: 30.0,
                   fontWeight: FontWeight.w400,
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(2, 5, 0, 0),
-                child: Text('₹'),
+                child: Text(
+                  '₹',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
               ),
               Expanded(
                 child: Container(),
@@ -490,7 +512,7 @@ class _FriendLogsState extends State<FriendLogs> {
               Text(
                 formattedDate,
                 style: TextStyle(
-                  color: Colors.white54,
+                  color: Theme.of(context).primaryColorLight,
                 ),
               ),
             ],

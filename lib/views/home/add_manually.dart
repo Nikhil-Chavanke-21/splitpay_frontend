@@ -34,7 +34,33 @@ class _AddManuallyState extends State<AddManually> {
       Column(
         children: <Widget>[
           SizedBox(
-            height: 100.0,
+            height: 30.0,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(25, 0, 5, 0),
+                child: SizedBox(
+                  width: 160,
+                  child: Text(
+                    'Add Payment',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 40,
+                    ),
+                  ),
+                ),
+              ),
+              Image(
+                image: AssetImage('assets/images/info.png'),
+                width: 200,
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 10.0,
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 15.0),
@@ -48,7 +74,7 @@ class _AddManuallyState extends State<AddManually> {
                         child: Container(
                           height: 100,
                           decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
+                            color: Theme.of(context).primaryColorLight,
                             borderRadius: BorderRadius.circular(15),
                             border: Border.all(
                               color: Colors.deepPurpleAccent,
@@ -60,7 +86,7 @@ class _AddManuallyState extends State<AddManually> {
                               CircleAvatar(
                                 radius: 15,
                                 backgroundColor:
-                                    Theme.of(context).cardColor,
+                                    Theme.of(context).primaryColorLight,
                                 child: Icon(
                                   categoryIcon[entry],
                                   size: 15,
@@ -89,7 +115,7 @@ class _AddManuallyState extends State<AddManually> {
                         child: Padding(
                           padding: EdgeInsets.all(5.0),
                           child: CircleAvatar(
-                            backgroundColor: Theme.of(context).cardColor,
+                            backgroundColor: Theme.of(context).primaryColorLight,
                             radius: 15,
                             child: Icon(
                               categoryIcon[entry],
@@ -157,7 +183,7 @@ class _AddManuallyState extends State<AddManually> {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(Colors.deepPurpleAccent),
+                        backgroundColor: MaterialStateProperty.all<Color>(Theme.of(context).primaryColor),
                       ),
                       child: Text(
                         "Add",

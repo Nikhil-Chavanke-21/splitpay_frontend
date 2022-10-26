@@ -224,13 +224,6 @@ class _GroupLogsState extends State<GroupLogs> {
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.all(Radius.circular(12.0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).accentColor.withOpacity(0.3),
-                  blurRadius: 1,
-                  offset: Offset(2.0, 2.0),
-                ),
-              ],
             ),
             child: Column(
               children: [
